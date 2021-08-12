@@ -1,7 +1,3 @@
-'use strict';
-import 'node_modules';
-import { _exportReportToSpreadSheetAndGetRows, _getRows } from './helpers.js';
-
 var _spreadSheetID = '1CESmvINrFTBAoYo909rJOG3Ee9clgk97QD7vghchN3E';
 var _youtubeGAQL =
   'SELECT campaign.name,' +
@@ -17,6 +13,10 @@ var _youtubeGAQL =
   'campaign.status = ENABLED' +
   ' AND segments.ad_network_type = YOUTUBE_WATCH' +
   ' AND segments.date DURING TODAY';
+
+function main() {
+  excludeYoutubePlacementsAtCampaignLevel();
+}
 
 function excludeYoutubePlacementsAtCampaignLevel() {
   //1. read report from google database base on GAQL
@@ -55,4 +55,15 @@ function excludeYoutubePlacementsAtCampaignLevel() {
   }
 }
 
-export { excludeYoutubePlacementsAtCampaignLevel };
+function _exportReportToSpreadSheetAndGetRows(spreadSheetID, querry) {
+  var spreadSheetNew = SpreadsheetApp.openById(spreadSheetID);
+  var report = AdsApp.report(querry);
+  report.exportToSheet(spreadSheetNew.getActiveSheet());
+  Logger.log('Report is available at: ' + spreadSheetNew.getUrl());
+  return report.rows();
+}
+
+function _getRows(querry) {
+  var report = AdsApp.report(querry);
+  return report.rows();
+}

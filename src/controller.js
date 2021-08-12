@@ -1,3 +1,5 @@
-import newApp from './model.js';
+import { excludeYoutubePlacementsAtCampaignLevel } from './model.js';
 
-function main() {}
+function main() {
+  excludeYoutubePlacementsAtCampaignLevel();
+}
