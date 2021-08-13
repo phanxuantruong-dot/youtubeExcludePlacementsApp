@@ -1,0 +1,26 @@
+SELECT campaign.id, 
+  detail_placement_view.target_url, 
+  segments.ad_network_type, 
+  metrics.clicks, 
+  metrics.average_cpc, 
+  metrics.cost_micros, 
+  metrics.all_conversions 
+   FROM detail_placement_view  
+   WHERE campaign.status = ENABLED 
+   AND segments.ad_network_type = YOUTUBE_WATCH 
+   AND segments.date DURING LAST_30_DAYS
+
+
+
+   AND metrics.cost_micros >= 1.3 
+   AND metrics.clicks < 1 
+   AND metrics.all_conversions < 1
+
+   AND metrics.average_cpc >= 1.3  
+   AND metrics.all_conversions < 1
+
+   AND metrics.cost_micros >= 9 
+    AND metrics.all_conversions < 1
+
+   AND metrics.cost_micros >= 39
+     AND metrics.all_conversions < 2

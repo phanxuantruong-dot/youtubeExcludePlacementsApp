@@ -13,4 +13,8 @@ function _getRows(querry) {
   return report.rows();
 }
 
-export { _exportReportToSpreadSheetAndGetRows, _getRows };
+function _normalValToMicros(val) {
+  return (val * 1000000).toString();
+}
+
+export { _exportReportToSpreadSheetAndGetRows, _getRows, _normalValToMicros };

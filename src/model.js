@@ -1,26 +1,60 @@
 'use strict';
 import 'node_modules';
 import { _exportReportToSpreadSheetAndGetRows, _getRows } from './helpers.js';
+import { USD_TO_VND_1_3, USD_TO_VND_9, USD_TO_VND_39 } from './config.js';
+/* 
+
+acpc 1.3, thresthold 1 conv 9, thresthold 2 conv 39, 80% budget spend on less than $1 placements
+Case 1: 0 click -- cost >= 1.3, click < 1, all Conv < 1 
+Case 2: > 0 click -- average cpc >= 1.3, all Conv < 1
+Case 3: cost > 9, conv < 1
+Case 4: cost > 39, conv < 2
+
+*/
 
 var _spreadSheetID = '1CESmvINrFTBAoYo909rJOG3Ee9clgk97QD7vghchN3E';
+
 var _youtubeGAQL =
-  'SELECT campaign.name,' +
-  'campaign.id,' +
+  'SELECT campaign.id,' +
   'detail_placement_view.target_url,' +
   'segments.ad_network_type,' +
-  'metrics.impressions,' +
   'metrics.clicks,' +
-  'metrics.all_conversions,' +
-  'metrics.ctr' +
+  'metrics.average_cpc,' +
+  'metrics.cost_micros,' +
+  'metrics.all_conversions' +
   ' FROM detail_placement_view ' +
-  ' WHERE ' +
-  'campaign.status = ENABLED' +
+  ' WHERE campaign.status = ENABLED' +
   ' AND segments.ad_network_type = YOUTUBE_WATCH' +
-  ' AND segments.date DURING TODAY';
+  ' AND segments.date DURING LAST_30_DAYS';
 
-function excludeYoutubePlacementsAtCampaignLevel() {
+var _case1 =
+  _youtubeGAQL +
+  ' AND metrics.cost_micros >= ' +
+  _normalValToMicros(1.3) +
+  ' AND metrics.clicks < 1' +
+  ' AND metrics.all_conversions < 1';
+
+var _case2 =
+  _youtubeGAQL +
+  ' AND metrics.average_cpc > ' +
+  _normalValToMicros(1.3) +
+  ' AND metrics.all_conversions < 1';
+
+var _case3 =
+  _youtubeGAQL +
+  ' AND metrics.cost_micros >= ' +
+  _normalValToMicros(9) +
+  ' AND metrics.all_conversions < 1';
+
+var _case4 =
+  _youtubeGAQL +
+  ' AND metrics.cost_micros >= ' +
+  _normalValToMicros(39) +
+  ' AND metrics.all_conversions < 2';
+
+function excludeYoutubePlacementsAtCampaignLevel(_case) {
   //1. read report from google database base on GAQL
-  var rows = _getRows(_youtubeGAQL);
+  var rows = _getRows(_spreadSheetID, _case);
   while (rows.hasNext()) {
     var row = rows.next();
 
@@ -55,4 +89,10 @@ function excludeYoutubePlacementsAtCampaignLevel() {
   }
 }
 
-export { excludeYoutubePlacementsAtCampaignLevel };
+export {
+  excludeYoutubePlacementsAtCampaignLevel,
+  _case1,
+  _case2,
+  _case3,
+  _case4,
+};
