@@ -93,10 +93,55 @@ function excludeYoutubePlacementsAtCampaignLevel(_case) {
   }
 }
 
+function checkYoutubeExclusionList() {
+  // list all the placements that have conversion inside detail placements report last 30 days
+  var rows = _getRows(_allConvPlacements);
+  while (rows.hasNext()) {
+    var row = rows.next();
+    // setting up things
+    var campaignId = Number(row['campaign.id']);
+    Logger.log(campaignId);
+    Logger.log(typeof campaignId);
+    var domain = row['detail_placement_view.target_url'];
+    var videoId = domain.split('/')[2];
+    var videoName = row['detail_placement_view.display_name'];
+    var campaign = AdsApp.videoCampaigns().withIds([campaignId]).get().next();
+
+    // put all exclude placements ID of that campaign inside an array
+    var excludedVideoIds = getExcludedPlacmentsFromCampaign(campaignId);
+    // check if these placement urls match any ID in the campaign exclusion list?
+    var isPathExclude = excludedVideoIds.some(function (id) {
+      return videoId === id;
+    });
+    // if have => remove from that exclusion list.
+    if (isPathExclude) {
+      Logger.log('This video have conv and was excluded: ' + videoName);
+      campaign
+        .videoTargeting()
+        .excludedYouTubeVideos()
+        .withIds(videoId)
+        .remove();
+      Logger.log('Removed from exclusion list successfully!!!');
+    } else Logger.log('Row 125');
+  }
+}
+
+function getExcludedPlacmentsFromCampaign(id) {
+  var campaign = AdsApp.videoCampaigns().withIds([id]).get().next();
+  var excludedVideos = campaign.videoTargeting().excludedYouTubeVideos().get();
+  var excludedVideoIds = [];
+  while (excludedVideos.hasNext()) {
+    var excludedVideo = excludedVideos.next();
+    excludedVideoIds.push(excludedVideo.getVideoId());
+  }
+  return excludedVideoIds;
+}
+
 export {
   excludeYoutubePlacementsAtCampaignLevel,
   _case1,
   _case2,
   _case3,
   _case4,
+  checkYoutubeExclusionList,
 };
