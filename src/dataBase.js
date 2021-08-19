@@ -63,16 +63,19 @@ var _allConvPlacements =
 
 var _youtubeGAQLKwds =
   'SELECT campaign.id,' +
+  'ad_group.id,' +
   'segments.ad_network_type,' +
   'metrics.clicks,' +
   'metrics.average_cpc,' +
   'metrics.cost_micros,' +
-  'metrics.all_conversions' +
-  'ad_group_criterion.effective_cpv_bid_micros ' +
-  'ad_group_criterion.criterion_id ' +
+  'metrics.all_conversions,' +
+  'ad_group_criterion.effective_cpv_bid_micros, ' +
+  'ad_group_criterion.criterion_id, ' +
   'ad_group_criterion.keyword.text ' +
   ' FROM display_keyword_view ' +
   ' WHERE campaign.status = ENABLED' +
+  ' AND ad_group.status = ENABLED' +
+  ' AND ad_group_criterion.status = ENABLED' +
   ' AND segments.ad_network_type = YOUTUBE_WATCH' +
   ' AND segments.date DURING LAST_30_DAYS';
 

@@ -4,43 +4,44 @@ import { _exportReportToSpreadSheetAndGetRows, _getRows } from './helpers.js';
 
 function _pauseDisplayKeywords(_case) {
   //1. read report from google database base on GAQL
-  const rows = _exportReportToSpreadSheetAndGetRows(_case);
-  //   while (rows.hasNext()) {
-  //     var row = rows.next();
+  const rows = _getRows(_case);
+  while (rows.hasNext()) {
+    var row = rows.next();
 
-  //     // 2. Id and domain has same row  => exclude domain  from campaign ID => get campaign ID
-  //     var campaignId = row['campaign.id'];
+    // 2. get adgroup ID so we can select adgroup
+    var adgroupID = row['ad_group.id'];
+    // 2.5 get campaign ID so we can get the name of the campaign
+    var campaignID = row[`campaign.id`];
 
-  //     // 3. select domain url, but the exclude video operator need video id => using split function to take ID
-  //     var domain = row['detail_placement_view.target_url'];
-  //     var videoId = domain.split('/')[2];
-  //     var videoName = row['detail_placement_view.display_name'];
+    // 3. get the keywords ID so we can change on that keywords
+    var keywordID = row['ad_group_criterion.criterion_id'];
 
-  //     // 4. select campaign base on id
-  //     var campaign = AdsApp.videoCampaigns()
-  //       .withIds([Number(campaignId)])
-  //       .get()
-  //       .next();
+    // 4. select adgroup base on id
+    var adgroup = AdsApp.videoAdGroups()
+      .withIds([Number(adgroupID)])
+      .get()
+      .next();
+    var campaign = AdsApp.videoCampaigns()
+      .withIds([Number(campaignID)])
+      .get()
+      .next();
 
-  //     // 5. build an exclude placement at campaign level
+    // 5. select the keyword base on keyword id from that adgroup
 
-  //     var excludeYoutubePlacementsOperation = campaign
-  //       .videoTargeting() // for display campaign this is .display()
-  //       .newYouTubeVideoBuilder()
-  //       .withVideoId(videoId)
-  //       .exclude();
-  //     // 3. if exclude successful -> log to the console
-  //     if (excludeYoutubePlacementsOperation.isSuccessful()) {
-  //       Logger.log(
-  //         'Excluded placement from campaign: ' +
-  //           campaign.getName() +
-  //           ' video name: ' +
-  //           videoName
-  //       );
-  //     } else {
-  //       Logger.log('Exclude video: ' + videoName + ' FAIL!!!');
-  //     }
-  //   }
+    var selectedKeyword = adgroup
+      .videoTargeting() // for display adgroup this is .display()
+      .keywords()
+      .withIds([Number(adgroupID), Number(keywordID)])
+      .get()
+      .next();
+
+    // pause the keywords
+    selectedKeyword.bidding().setCpv(0);
+
+    // if pause successful -> log to the console
+    Logger.log('Paused Keyword (bid = 0.01): ' + selectedKeyword.getText());
+    Logger.log('From: ' + campaign.getName() + '||' + adgroup.getName());
+  }
 }
 
 export { _pauseDisplayKeywords };
