@@ -1,6 +1,16 @@
 'use strict';
 import 'node_modules';
-import { _exportReportToSpreadSheetAndGetRows, _getRows } from './helpers.js';
+import {
+  _exportReportToSpreadSheetAndGetRows,
+  _getRows,
+  _normalValToMicros,
+  _deleteEntireCol,
+  _selectEntireColumnWithHeadline,
+  _findAllCellsContainTextInRange,
+  _findACellContainTextInRange,
+  _getCellValue,
+  _getIndexOfColumnContainText,
+} from './helpers.js';
 import { _youtubeGAQLKwds, _spreadSheetID } from './dataBase';
 
 function _pauseDisplayKeywords(_case) {
@@ -69,6 +79,7 @@ function _checkViralKeywords() {
     // 3. get the keywords ID so we can change on that keywords
     var keywordID = row['ad_group_criterion.criterion_id'];
     // 4. compare with each row inside the sheet
+    var adgroupIDs = _selectEntireColumnWithHeadline('ad_group.id');
   }
 }
 
