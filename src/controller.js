@@ -26,5 +26,8 @@ Case 4: cost > 55, conv < 2
 */
 
 function main() {
-  _pauseDisplayKeywords();
+  _pauseDisplayKeywords(_case1Kwds);
+  _pauseDisplayKeywords(_case2Kwds);
+  _pauseDisplayKeywords(_case3Kwds);
+  _pauseDisplayKeywords(_case4Kwds);
 }

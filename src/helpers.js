@@ -1,7 +1,10 @@
 import 'node_modules';
 
 //get Rows base on database (dataBaseQuerry)
-function _exportReportToSpreadSheetAndGetRows(spreadSheetID, dataBaseQuerry) {
+function _exportReportToSpreadSheetAndGetRows(
+  dataBaseQuerry,
+  spreadSheetID = '1CESmvINrFTBAoYo909rJOG3Ee9clgk97QD7vghchN3E'
+) {
   var spreadSheetNew = SpreadsheetApp.openById(spreadSheetID);
   var report = AdsApp.report(dataBaseQuerry);
   report.exportToSheet(spreadSheetNew.getActiveSheet());

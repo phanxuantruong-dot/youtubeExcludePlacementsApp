@@ -117,6 +117,7 @@ var _case4Kwds =
 var _allConvKwds = _youtubeGAQLKwds + ' AND metrics.all_conversions > 0';
 
 export {
+  __spreadSheetID,
   _youtubeGAQL,
   _case1,
   _case2,
