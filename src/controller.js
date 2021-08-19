@@ -1,11 +1,16 @@
 import {
   excludeYoutubePlacementsAtCampaignLevel,
+  checkYoutubeExclusionList,
+} from './model.js';
+
+import {
+  _youtubeGAQL,
   _case1,
   _case2,
   _case3,
   _case4,
-} from './model.js';
-
+  _allConvPlacements,
+} from './dataBase.js';
 /* 
 
 acpc 1.3, thresthold 1 conv 9, thresthold 2 conv 39, 80% budget spend on less than $1 placements
