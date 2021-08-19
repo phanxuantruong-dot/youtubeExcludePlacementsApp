@@ -1,18 +1,21 @@
 import 'node_modules';
 
-function _exportReportToSpreadSheetAndGetRows(spreadSheetID, querry) {
+//get Rows base on database (dataBaseQuerry)
+function _exportReportToSpreadSheetAndGetRows(spreadSheetID, dataBaseQuerry) {
   var spreadSheetNew = SpreadsheetApp.openById(spreadSheetID);
-  var report = AdsApp.report(querry);
+  var report = AdsApp.report(dataBaseQuerry);
   report.exportToSheet(spreadSheetNew.getActiveSheet());
   Logger.log('Report is available at: ' + spreadSheetNew.getUrl());
   return report.rows();
 }
 
-function _getRows(querry) {
-  var report = AdsApp.report(querry);
+//get Rows base on database (dataBaseQuerry)
+function _getRows(dataBaseQuerry) {
+  var report = AdsApp.report(dataBaseQuerry);
   return report.rows();
 }
 
+// google use money as micro value ($1 = 1000000 micro values)
 function _normalValToMicros(val) {
   return (val * 1000000).toString();
 }

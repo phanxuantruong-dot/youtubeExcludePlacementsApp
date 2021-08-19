@@ -52,6 +52,13 @@ var _case4 =
   _normalValToMicros(39) +
   ' AND metrics.all_conversions < 2';
 
+// all conv placements spend less than 39 and have at least 1 conv
+var _allConvPlacements =
+  _youtubeGAQL +
+  ' AND metrics.all_conversions > 0' +
+  ' AND metrics.cost_micros < ' +
+  _normalValToMicros(39);
+
 function excludeYoutubePlacementsAtCampaignLevel(_case) {
   //1. read report from google database base on GAQL
   var rows = _getRows(_case);
@@ -100,15 +107,13 @@ function checkYoutubeExclusionList() {
     var row = rows.next();
     // setting up things
     var campaignId = Number(row['campaign.id']);
-    Logger.log(campaignId);
-    Logger.log(typeof campaignId);
     var domain = row['detail_placement_view.target_url'];
     var videoId = domain.split('/')[2];
     var videoName = row['detail_placement_view.display_name'];
     var campaign = AdsApp.videoCampaigns().withIds([campaignId]).get().next();
 
     // put all exclude placements ID of that campaign inside an array
-    var excludedVideoIds = getExcludedPlacmentsFromCampaign(campaignId);
+    var excludedVideoIds = _getExcludedPlacmentsFromCampaign(campaignId);
     // check if these placement urls match any ID in the campaign exclusion list?
     var isPathExclude = excludedVideoIds.some(function (id) {
       return videoId === id;
@@ -116,17 +121,13 @@ function checkYoutubeExclusionList() {
     // if have => remove from that exclusion list.
     if (isPathExclude) {
       Logger.log('This video have conv and was excluded: ' + videoName);
-      campaign
-        .videoTargeting()
-        .excludedYouTubeVideos()
-        .withIds(videoId)
-        .remove();
-      Logger.log('Removed from exclusion list successfully!!!');
-    } else Logger.log('Row 125');
+      Logger.log('From campaign: ' + campaign.getName());
+    }
   }
 }
 
-function getExcludedPlacmentsFromCampaign(id) {
+// checkYoutubeExclusionList helper function, return an array of exclusion list
+function _getExcludedPlacmentsFromCampaign(id) {
   var campaign = AdsApp.videoCampaigns().withIds([id]).get().next();
   var excludedVideos = campaign.videoTargeting().excludedYouTubeVideos().get();
   var excludedVideoIds = [];
