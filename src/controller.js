@@ -1,16 +1,11 @@
 import {
   excludeYoutubePlacementsAtCampaignLevel,
   checkYoutubeExclusionList,
-} from './model.js';
+} from './modelPlacements.js';
 
-import {
-  _youtubeGAQL,
-  _case1,
-  _case2,
-  _case3,
-  _case4,
-  _allConvPlacements,
-} from './dataBase.js';
+import { _pauseDisplayKeywords } from './modelKeywords.js';
+
+import { _case1, _case2, _case3, _case4 } from './dataBase.js';
 /* 
 
 acpc 1.3, thresthold 1 conv 9, thresthold 2 conv 39, 80% budget spend on less than $1 placements
@@ -20,10 +15,16 @@ Case 3: cost > 9, conv < 1
 Case 4: cost > 39, conv < 2
 
 */
+import { _case1Kwds, _case2Kwds, _case3Kwds, _case4Kwds } from './dataBase.js';
+/* 
+
+Case 1: 0 click -- cost >= 2, click < 1, all Conv < 1 
+Case 2: > 0 click -- average cpc > 2, all Conv < 1
+Case 3: cost > 25, conv < 1
+Case 4: cost > 55, conv < 2
+
+*/
 
 function main() {
-  excludeYoutubePlacementsAtCampaignLevel(_case1);
-  excludeYoutubePlacementsAtCampaignLevel(_case2);
-  excludeYoutubePlacementsAtCampaignLevel(_case3);
-  excludeYoutubePlacementsAtCampaignLevel(_case4);
+  _pauseDisplayKeywords();
 }

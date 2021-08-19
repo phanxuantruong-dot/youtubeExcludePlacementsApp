@@ -1,14 +1,7 @@
 'use strict';
 import 'node_modules';
 import { _exportReportToSpreadSheetAndGetRows, _getRows } from './helpers.js';
-import {
-  _youtubeGAQL,
-  _case1,
-  _case2,
-  _case3,
-  _case4,
-  _allConvPlacements,
-} from './dataBase.js';
+import { _allConvPlacements } from './dataBase.js';
 
 function excludeYoutubePlacementsAtCampaignLevel(_case) {
   //1. read report from google database base on GAQL
@@ -88,5 +81,7 @@ function _getExcludedPlacmentsFromCampaign(id) {
   }
   return excludedVideoIds;
 }
+
+//
 
 export { excludeYoutubePlacementsAtCampaignLevel, checkYoutubeExclusionList };
