@@ -23,6 +23,10 @@ function _normalValToMicros(val) {
   return (val * 1000000).toString();
 }
 
+function _microsValToNormal(val) {
+  return (val / 1000000).toString();
+}
+
 function _deleteEntireCol(sheet, text) {
   var colIndex = _getIndexOfColumnContainText(text);
   if (colIndex) {
