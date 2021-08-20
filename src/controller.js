@@ -3,7 +3,11 @@ import {
   checkYoutubeExclusionList,
 } from './modelPlacements.js';
 
-import { pauseDisplayKeywords, checkViralKeywords } from './modelKeywords.js';
+import {
+  pauseDisplayKeywords,
+  checkViralKeywords,
+  getViralKeywordsToNormal,
+} from './modelKeywords.js';
 
 import { _case1, _case2, _case3, _case4 } from './dataBase.js';
 /* 
@@ -30,5 +34,6 @@ function main() {
   pauseDisplayKeywords(_case2Kwds);
   pauseDisplayKeywords(_case3Kwds);
   pauseDisplayKeywords(_case4Kwds);
-  checkViralKeywords();
+  checkViralKeywords(6, 10);
+  getViralKeywordsToNormal();
 }

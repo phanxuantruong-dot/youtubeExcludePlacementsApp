@@ -33,6 +33,7 @@ function _deleteEntireCol(sheet, text) {
 
 function _selectEntireColumnWithHeadline(sheet, text) {
   var lastRow = _getLastRowOf(sheet);
+  if (lastRow < 2) return;
   var indexColumnContainsText = _getIndexOfColumnContainText(sheet, text);
   if (indexColumnContainsText) {
     var rangeOfColumnContainsText = sheet.getRange(
@@ -93,4 +94,6 @@ export {
   _findACellContainTextInRange,
   _getCellValue,
   _getIndexOfColumnContainText,
+  _getLastColumnOf,
+  _getLastRowOf,
 };

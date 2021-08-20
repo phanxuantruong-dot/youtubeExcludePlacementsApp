@@ -10,6 +10,8 @@ import {
   _findACellContainTextInRange,
   _getCellValue,
   _getIndexOfColumnContainText,
+  _getLastColumnOf,
+  _getLastRowOf,
 } from './helpers.js';
 import { _youtubeGAQLKwds, _spreadSheetID } from './dataBase';
 
@@ -90,7 +92,7 @@ function _increaseCPVKeywordByPercent(keyword, percent) {
   return keyword.bidding().getCpv();
 }
 
-function checkViralKeywords() {
+function checkViralKeywords(hour, value) {
   // we use spreadsheet to track the keywords previous bid
   // get sheet
   var spreadSheet = SpreadsheetApp.openById(_spreadSheetID);
@@ -100,7 +102,7 @@ function checkViralKeywords() {
   var viralKeywordsGAQL =
     _youtubeGAQLKwds +
     ' AND metrics.cost_micros >= ' +
-    _normalValToMicros(_valueBasedOnHour(6, 10)) +
+    _normalValToMicros(_valueBasedOnHour(hour, value)) +
     ' AND metrics.all_conversions < 1';
 
   var rows = _getRows(viralKeywordsGAQL);
@@ -124,17 +126,20 @@ function checkViralKeywords() {
         sheet,
         'ad_group_criterion.criterion_id'
       );
-      var isMatchAdgroupID = adgroupIDs.some(function (id) {
-        return id == adgroupID;
-      });
-      var isMatchKeywordID = keywordIDs.some(function (id) {
-        return id == keywordID;
-      });
-      var isInSheet = isMatchAdgroupID && isMatchKeywordID;
+      // check if the sheet is empty, if it's empty => append row, no need to check
+      var isSheetEmpty = adgroupIDs == null;
 
-      // 5. if not in the spreadsheet list, append in the spreadsheet
-      if (!isInSheet) {
-        sheet.appendRow(row);
+      var isInSheet = false;
+      if (!isSheetEmpty) {
+        var isMatchAdgroupID = _isArrayContain(adgroupIDs, adgroupID);
+        var isMatchKeywordID = _isArrayContain(keywordIDs, keywordID);
+
+        isInSheet = isMatchAdgroupID && isMatchKeywordID;
+      }
+      // 5. if the sheet is empty or not in the spreadsheet list, append in the spreadsheet
+      if (isSheetEmpty || !isInSheet) {
+        var rowArr = _mappingObjectArr(row);
+        sheet.appendRow(rowArr);
         const oldBid = _getCurrentBidOfKeyword(selectedKeyword);
         const newBid = _decreaseCPVKeywordByPercent(selectedKeyword, 30);
         Logger.log('Viral keywords: ' + row['ad_group_criterion.keyword.text']);
@@ -151,6 +156,80 @@ function checkViralKeywords() {
   }
 }
 
+function _isArrayContain(array, value) {
+  var isContain = false;
+  for (var i = 0; i < array.length; i++) {
+    if (array[i] == value) isContain = true;
+  }
+  return isContain;
+}
+
+function getViralKeywordsToNormal() {
+  // get sheet
+  var spreadSheet = SpreadsheetApp.openById(_spreadSheetID);
+  var sheet = spreadSheet.getSheetByName('Sheet1');
+  // get last row vs last col
+  var lastRow = _getLastRowOf(sheet);
+  var lastCol = _getLastColumnOf(sheet);
+  // setting up the sheet
+  var colAdgroupID = _getIndexOfColumnContainText(sheet, 'ad_group.id');
+  var colKeywordID = _getIndexOfColumnContainText(
+    sheet,
+    'ad_group_criterion.criterion_id'
+  );
+  var colMaxCPV = _getIndexOfColumnContainText(
+    sheet,
+    'ad_group_criterion.effective_cpv_bid_micros'
+  );
+
+  // get all the adgroup ID to loop through row by row
+  var allAdgroupIDs = _selectEntireColumnWithHeadline(sheet, 'ad_group.id');
+  if (!allAdgroupIDs) {
+    Logger.log("There's no viral keyword adjustment happened!");
+    return;
+  }
+  // MAIN PART: loop through row by row, selected the keyword, restore to the normal value, log to the console
+  for (var i = 0; i < allAdgroupIDs.length; i++) {
+    // get the row index
+    var rowIndex = allAdgroupIDs[i].getRowIndex();
+    // find adgroup id and keyword id to find display keyword
+    var adgroupIDValue = _getCellValue(sheet, rowIndex, colAdgroupID);
+    var keywordIDValue = _getCellValue(sheet, rowIndex, colKeywordID);
+    var selectedKeyword = _selectDisplayKeyword(adgroupIDValue, keywordIDValue);
+
+    // get the normal bid
+    var maxCPVMicrosValue = +_getCellValue(sheet, rowIndex, colMaxCPV);
+    var normalBid = maxCPVMicrosValue / 1000000;
+
+    // get the current bid, also the reduced 30% bid from normal
+    var reducedBid = selectedKeyword.bidding().getCpv();
+
+    // return to the previous bid before reduce 30% by viral keyword check
+    _setCPVKeyword(selectedKeyword, normalBid);
+    Logger.log('Viral Keyword: ' + selectedKeyword.getText());
+    Logger.log('Bid change from ' + reducedBid + ' to normal: ' + normalBid);
+  }
+
+  // after restore all the viral display keyword to normal, we delete all the data inside the sheet except the 1st row
+  sheet.deleteRows(2, lastRow - 1);
+}
+
+function _mappingObjectArr(object) {
+  if (JSON.stringify(object) == '{}') return;
+  var arr = [];
+  arr.push(object['campaign.id']);
+  arr.push(object['ad_group.id']);
+  arr.push(object['segments.ad_network_type']);
+  arr.push(object['metrics.clicks']);
+  arr.push(object['metrics.average_cpc']);
+  arr.push(object['metrics.cost_micros']);
+  arr.push(object['metrics.all_conversions']);
+  arr.push(object['ad_group_criterion.effective_cpv_bid_micros']);
+  arr.push(object['ad_group_criterion.criterion_id']);
+  arr.push(object['ad_group_criterion.keyword.text']);
+  return arr;
+}
+
 // this function will return a value, before a specific pivot 'hour', the return value will be 'value', after that pivot 'hour', the value is the current realtime hour
 function _valueBasedOnHour(hour, value) {
   // get current hour
@@ -161,4 +240,4 @@ function _valueBasedOnHour(hour, value) {
   return isTimeGreaterThan6 ? time : value;
 }
 
-export { pauseDisplayKeywords, checkViralKeywords };
+export { pauseDisplayKeywords, checkViralKeywords, getViralKeywordsToNormal };
