@@ -3,7 +3,7 @@ import {
   checkYoutubeExclusionList,
 } from './modelPlacements.js';
 
-import { _pauseDisplayKeywords } from './modelKeywords.js';
+import { pauseDisplayKeywords, checkViralKeywords } from './modelKeywords.js';
 
 import { _case1, _case2, _case3, _case4 } from './dataBase.js';
 /* 
@@ -26,8 +26,9 @@ Case 4: cost > 55, conv < 2
 */
 
 function main() {
-  _pauseDisplayKeywords(_case1Kwds);
-  _pauseDisplayKeywords(_case2Kwds);
-  _pauseDisplayKeywords(_case3Kwds);
-  _pauseDisplayKeywords(_case4Kwds);
+  pauseDisplayKeywords(_case1Kwds);
+  pauseDisplayKeywords(_case2Kwds);
+  pauseDisplayKeywords(_case3Kwds);
+  pauseDisplayKeywords(_case4Kwds);
+  checkViralKeywords();
 }
