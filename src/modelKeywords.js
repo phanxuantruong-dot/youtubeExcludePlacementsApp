@@ -15,7 +15,7 @@ import { _youtubeGAQLKwds, _spreadSheetID } from './dataBase';
 
 function pauseDisplayKeywords(_case) {
   //1. read report from google database base on GAQL
-  const rows = _exportReportToSpreadSheetAndGetRows(_spreadSheetID, _case);
+  const rows = _getRows(_case);
   while (rows.hasNext()) {
     var row = rows.next();
     // 2. get campaign ID to get campaign name

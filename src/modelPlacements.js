@@ -69,7 +69,6 @@ function checkYoutubeExclusionList() {
     }
   }
 }
-
 // checkYoutubeExclusionList helper function, return an array of exclusion list
 function _getExcludedPlacmentsFromCampaign(id) {
   var campaign = AdsApp.videoCampaigns().withIds([id]).get().next();
@@ -81,7 +80,5 @@ function _getExcludedPlacmentsFromCampaign(id) {
   }
   return excludedVideoIds;
 }
-
-//
 
 export { excludeYoutubePlacementsAtCampaignLevel, checkYoutubeExclusionList };
