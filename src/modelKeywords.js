@@ -16,7 +16,79 @@ import {
   _getRowIndex,
 } from './helpers.js';
 import { _youtubeGAQLKwds, _spreadSheetID } from './dataBase';
+///////// HELPER FUNCTIONS
+function _selectDisplayKeyword(adgroupID, keywordID) {
+  var adgroup = AdsApp.videoAdGroups()
+    .withIds([Number(adgroupID)])
+    .get()
+    .next();
+  var selectedKeyword = adgroup
+    .videoTargeting() // for display adgroup this is .display()
+    .keywords()
+    .withIds([Number(adgroupID), Number(keywordID)])
+    .get()
+    .next();
+  return selectedKeyword;
+}
 
+function _getCurrentBidOfKeyword(keyword) {
+  var currentBid = keyword.bidding().getCpv();
+  return currentBid;
+}
+
+function _setCPVKeyword(keyword, newCPV) {
+  keyword.bidding().setCpv(newCPV);
+  return keyword.bidding().getCpv();
+}
+
+function _decreaseCPVKeywordByPercent(keyword, percent) {
+  var currentBid = keyword.bidding().getCpv();
+  var newBid = (1 - percent / 100) * currentBid;
+  keyword.bidding().setCpv(newBid);
+  return keyword.bidding().getCpv();
+}
+
+function _increaseCPVKeywordByPercent(keyword, percent) {
+  var currentBid = keyword.bidding().getCpv();
+  var newBid = (1 + percent / 100) * currentBid;
+  keyword.bidding().setCpv(newBid);
+  return keyword.bidding().getCpv();
+}
+
+function _mappingObjectArr(object) {
+  if (JSON.stringify(object) == '{}') return;
+  var arr = [];
+  arr.push(object['campaign.id']);
+  arr.push(object['ad_group.id']);
+  arr.push(object['segments.ad_network_type']);
+  arr.push(object['metrics.clicks']);
+  arr.push(object['metrics.average_cpc']);
+  arr.push(object['metrics.cost_micros']);
+  arr.push(object['metrics.all_conversions']);
+  arr.push(object['ad_group_criterion.effective_cpv_bid_micros']);
+  arr.push(object['ad_group_criterion.criterion_id']);
+  arr.push(object['ad_group_criterion.keyword.text']);
+  return arr;
+}
+
+function _isArrayContain(array, value) {
+  var isContain = false;
+  for (var i = 0; i < array.length; i++) {
+    if (array[i] == value) isContain = true;
+  }
+  return isContain;
+}
+
+// this function will return a value, before a specific pivot 'hour', the return value will be 'value', after that pivot 'hour', the value is the current realtime hour
+function _valueBasedOnHour(hour, value) {
+  // get current hour
+  var time = new Date().getHours();
+  // check if now was over 'hour'
+  var isTimeGreaterThan6 = time >= hour;
+  // if over 'hour', the value will be current hour
+  return isTimeGreaterThan6 ? time : value;
+}
+//////////////////////////////////////////////////////
 function pauseDisplayKeywords(_case) {
   //1. read report from google database base on GAQL
   const rows = _getRows(_case);
@@ -54,44 +126,6 @@ function pauseDisplayKeywords(_case) {
     );
     Logger.log('From: ' + campaign.getName() + '||' + adgroup.getName());
   }
-}
-
-function _selectDisplayKeyword(adgroupID, keywordID) {
-  var adgroup = AdsApp.videoAdGroups()
-    .withIds([Number(adgroupID)])
-    .get()
-    .next();
-  var selectedKeyword = adgroup
-    .videoTargeting() // for display adgroup this is .display()
-    .keywords()
-    .withIds([Number(adgroupID), Number(keywordID)])
-    .get()
-    .next();
-  return selectedKeyword;
-}
-
-function _getCurrentBidOfKeyword(keyword) {
-  var currentBid = keyword.bidding().getCpv();
-  return currentBid;
-}
-
-function _setCPVKeyword(keyword, newCPV) {
-  keyword.bidding().setCpv(newCPV);
-  return keyword.bidding().getCpv();
-}
-
-function _decreaseCPVKeywordByPercent(keyword, percent) {
-  var currentBid = keyword.bidding().getCpv();
-  var newBid = (1 - percent / 100) * currentBid;
-  keyword.bidding().setCpv(newBid);
-  return keyword.bidding().getCpv();
-}
-
-function _increaseCPVKeywordByPercent(keyword, percent) {
-  var currentBid = keyword.bidding().getCpv();
-  var newBid = (1 + percent / 100) * currentBid;
-  keyword.bidding().setCpv(newBid);
-  return keyword.bidding().getCpv();
 }
 
 function checkViralKeywords(hour, value) {
@@ -233,40 +267,6 @@ function getViralKeywordsToNormal() {
 
   // after restore all the viral display keyword to normal, we delete all the data inside the sheet except the 1st row
   sheet.deleteRows(2, lastRow - 1);
-}
-
-function _mappingObjectArr(object) {
-  if (JSON.stringify(object) == '{}') return;
-  var arr = [];
-  arr.push(object['campaign.id']);
-  arr.push(object['ad_group.id']);
-  arr.push(object['segments.ad_network_type']);
-  arr.push(object['metrics.clicks']);
-  arr.push(object['metrics.average_cpc']);
-  arr.push(object['metrics.cost_micros']);
-  arr.push(object['metrics.all_conversions']);
-  arr.push(object['ad_group_criterion.effective_cpv_bid_micros']);
-  arr.push(object['ad_group_criterion.criterion_id']);
-  arr.push(object['ad_group_criterion.keyword.text']);
-  return arr;
-}
-
-function _isArrayContain(array, value) {
-  var isContain = false;
-  for (var i = 0; i < array.length; i++) {
-    if (array[i] == value) isContain = true;
-  }
-  return isContain;
-}
-
-// this function will return a value, before a specific pivot 'hour', the return value will be 'value', after that pivot 'hour', the value is the current realtime hour
-function _valueBasedOnHour(hour, value) {
-  // get current hour
-  var time = new Date().getHours();
-  // check if now was over 'hour'
-  var isTimeGreaterThan6 = time >= hour;
-  // if over 'hour', the value will be current hour
-  return isTimeGreaterThan6 ? time : value;
 }
 
 export { pauseDisplayKeywords, checkViralKeywords, getViralKeywordsToNormal };
