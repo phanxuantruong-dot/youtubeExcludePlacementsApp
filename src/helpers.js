@@ -33,15 +33,16 @@ function _deleteEntireCol(sheet, text) {
 
 function _selectColumnValuesWithHeadline(sheet, text) {
   var lastRow = _getLastRowOf(sheet);
-
   var indexColumnContainsText = _getIndexOfColumnContainText(sheet, text);
 
-  if (indexColumnContainsText) {
+  if (indexColumnContainsText && lastRow > 1) {
     var rangeOfColumnContainsText = sheet
       .getRange(2, indexColumnContainsText, lastRow - 1, 1)
       .getValues();
 
     return _flatArr(rangeOfColumnContainsText);
+  } else {
+    return [];
   }
 }
 
