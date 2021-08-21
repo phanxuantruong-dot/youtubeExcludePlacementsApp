@@ -269,4 +269,10 @@ function getViralKeywordsToNormal() {
   sheet.deleteRows(2, lastRow - 1);
 }
 
+function adjustBidDKwdsOfVideoCampaign(campaignName) {
+  var selectedCampaign = AdsApp.videoCampaigns()
+    .withCondition("LabelNames CONTAINS_ANY ['script', 'adjustbid']")
+    .withCondition('Status = ENABLED');
+}
+
 export { pauseDisplayKeywords, checkViralKeywords, getViralKeywordsToNormal };

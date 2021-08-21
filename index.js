@@ -1,3 +1,10 @@
-var time = new Date().getHours();
-var isTimeGreaterThan6 = time > 60;
-console.log(isTimeGreaterThan6 ? time : 10);
+function _valueBasedOnHour(hour, value) {
+  // get current hour
+  var time = new Date().getHours();
+  // check if now was over 'hour'
+  var isTimeGreaterThan6 = time >= hour;
+  // if over 'hour', the value will be current hour
+  return isTimeGreaterThan6 ? time : value;
+}
+
+console.log(_valueBasedOnHour(6, 10));
