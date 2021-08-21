@@ -5,13 +5,15 @@ import {
   _getRows,
   _normalValToMicros,
   _deleteEntireCol,
-  _selectEntireColumnWithHeadline,
+  _selectColumnValuesWithHeadline,
   _findAllCellsContainTextInRange,
   _findACellContainTextInRange,
   _getCellValue,
   _getIndexOfColumnContainText,
   _getLastColumnOf,
   _getLastRowOf,
+  _selectColumnRangeWithHeadline,
+  _getRowIndex,
 } from './helpers.js';
 import { _youtubeGAQLKwds, _spreadSheetID } from './dataBase';
 
@@ -121,13 +123,13 @@ function checkViralKeywords(hour, value) {
       var selectedKeyword = _selectDisplayKeyword(adgroupID, keywordID);
 
       // 4. compare with each row inside the sheet
-      var adgroupIDs = _selectEntireColumnWithHeadline(sheet, 'ad_group.id');
-      var keywordIDs = _selectEntireColumnWithHeadline(
+      var adgroupIDs = _selectColumnValuesWithHeadline(sheet, 'ad_group.id');
+      var keywordIDs = _selectColumnValuesWithHeadline(
         sheet,
         'ad_group_criterion.criterion_id'
       );
       // check if the sheet is empty, if it's empty => append row, no need to check
-      var isSheetEmpty = adgroupIDs == null;
+      var isSheetEmpty = adgroupIDs.length == 0;
 
       var isInSheet = false;
       if (!isSheetEmpty) {
@@ -156,22 +158,19 @@ function checkViralKeywords(hour, value) {
   }
 }
 
-function _isArrayContain(array, value) {
-  var isContain = false;
-  for (var i = 0; i < array.length; i++) {
-    if (array[i] == value) isContain = true;
-  }
-  return isContain;
-}
-
 function getViralKeywordsToNormal() {
   // get sheet
   var spreadSheet = SpreadsheetApp.openById(_spreadSheetID);
   var sheet = spreadSheet.getSheetByName('Sheet1');
+
+  Logger.log(sheet.getName());
+
   // get last row vs last col
   var lastRow = _getLastRowOf(sheet);
-  var lastCol = _getLastColumnOf(sheet);
-  // setting up the sheet
+
+  Logger.log('Last row = ' + lastRow);
+
+  // setting up the sheet, get index of all the columns
   var colAdgroupID = _getIndexOfColumnContainText(sheet, 'ad_group.id');
   var colKeywordID = _getIndexOfColumnContainText(
     sheet,
@@ -182,16 +181,27 @@ function getViralKeywordsToNormal() {
     'ad_group_criterion.effective_cpv_bid_micros'
   );
 
-  // get all the adgroup ID to loop through row by row
-  var allAdgroupIDs = _selectEntireColumnWithHeadline(sheet, 'ad_group.id');
-  if (!allAdgroupIDs) {
+  // get all the cost micro (unique value of the row) to loop through row by row
+  var costMicroValues = _selectColumnValuesWithHeadline(
+    sheet,
+    'metrics.cost_micros'
+  );
+
+  Logger.log('Cost Micros Length: ' + costMicroValues.length);
+
+  if (costMicroValues.length == 0) {
     Logger.log("There's no viral keyword adjustment happened!");
     return;
   }
+
+  Logger.log('Start the loop!');
+
   // MAIN PART: loop through row by row, selected the keyword, restore to the normal value, log to the console
-  for (var i = 0; i < allAdgroupIDs.length; i++) {
-    // get the row index
-    var rowIndex = allAdgroupIDs[i].getRowIndex();
+  for (var i = 0; i < costMicroValues.length; i++) {
+    // get the row index base on unique value of that row, we choose cost micro, we use floor method because we wanna include 1.333333333333333 case
+    var uniqueValue = Math.floor(+costMicroValues[i]);
+    var rowIndex = _getRowIndex(sheet, uniqueValue);
+
     // find adgroup id and keyword id to find display keyword
     var adgroupIDValue = _getCellValue(sheet, rowIndex, colAdgroupID);
     var keywordIDValue = _getCellValue(sheet, rowIndex, colKeywordID);
@@ -204,14 +214,18 @@ function getViralKeywordsToNormal() {
     // get the current bid, also the reduced 30% bid from normal
     var reducedBid = selectedKeyword.bidding().getCpv();
 
+    Logger.log('Before set new CPV[' + i + ']');
+
     // return to the previous bid before reduce 30% by viral keyword check
     _setCPVKeyword(selectedKeyword, normalBid);
     Logger.log('Viral Keyword: ' + selectedKeyword.getText());
     Logger.log('Bid change from ' + reducedBid + ' to normal: ' + normalBid);
   }
 
+  Logger.log('End loop!');
+
   // after restore all the viral display keyword to normal, we delete all the data inside the sheet except the 1st row
-  sheet.deleteRows(2, lastRow - 1);
+  // sheet.deleteRows(2, lastRow - 1);
 }
 
 function _mappingObjectArr(object) {
@@ -228,6 +242,14 @@ function _mappingObjectArr(object) {
   arr.push(object['ad_group_criterion.criterion_id']);
   arr.push(object['ad_group_criterion.keyword.text']);
   return arr;
+}
+
+function _isArrayContain(array, value) {
+  var isContain = false;
+  for (var i = 0; i < array.length; i++) {
+    if (array[i] == value) isContain = true;
+  }
+  return isContain;
 }
 
 // this function will return a value, before a specific pivot 'hour', the return value will be 'value', after that pivot 'hour', the value is the current realtime hour

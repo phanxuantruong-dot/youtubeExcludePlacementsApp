@@ -31,19 +31,26 @@ function _deleteEntireCol(sheet, text) {
   }
 }
 
-function _selectEntireColumnWithHeadline(sheet, text) {
+function _selectColumnValuesWithHeadline(sheet, text) {
   var lastRow = _getLastRowOf(sheet);
-  if (lastRow < 2) return;
+
   var indexColumnContainsText = _getIndexOfColumnContainText(sheet, text);
+
   if (indexColumnContainsText) {
-    var rangeOfColumnContainsText = sheet.getRange(
-      2,
-      indexColumnContainsText,
-      lastRow - 1,
-      1 //number of columns from the start column (indexColumnContainsText)
-    );
-    return rangeOfColumnContainsText;
+    var rangeOfColumnContainsText = sheet
+      .getRange(2, indexColumnContainsText, lastRow - 1, 1)
+      .getValues();
+
+    return _flatArr(rangeOfColumnContainsText);
   }
+}
+
+function _flatArr(array) {
+  var arr = [];
+  array.forEach(function (value) {
+    arr.push(value[0]);
+  });
+  return arr;
 }
 
 function _findAllCellsContainTextInRange(text, range) {
@@ -84,16 +91,24 @@ function _getLastRowOf(sheet) {
   return lastRow;
 }
 
+function _getRowIndex(sheet, uniqueValue) {
+  var range = sheet.getDataRange();
+  var cell = range.createTextFinder(uniqueValue).findNext();
+  var rowIndex = cell.getRowIndex();
+  return rowIndex;
+}
+
 export {
   _exportReportToSpreadSheetAndGetRows,
   _getRows,
   _normalValToMicros,
   _deleteEntireCol,
-  _selectEntireColumnWithHeadline,
+  _selectColumnValuesWithHeadline,
   _findAllCellsContainTextInRange,
   _findACellContainTextInRange,
   _getCellValue,
   _getIndexOfColumnContainText,
   _getLastColumnOf,
   _getLastRowOf,
+  _getRowIndex,
 };

@@ -30,10 +30,10 @@ Case 4: cost > 55, conv < 2
 */
 
 function main() {
-  pauseDisplayKeywords(_case1Kwds);
-  pauseDisplayKeywords(_case2Kwds);
-  pauseDisplayKeywords(_case3Kwds);
-  pauseDisplayKeywords(_case4Kwds);
+  // pauseDisplayKeywords(_case1Kwds);
+  // pauseDisplayKeywords(_case2Kwds);
+  // pauseDisplayKeywords(_case3Kwds);
+  // pauseDisplayKeywords(_case4Kwds);
   checkViralKeywords(6, 10);
   getViralKeywordsToNormal();
 }
