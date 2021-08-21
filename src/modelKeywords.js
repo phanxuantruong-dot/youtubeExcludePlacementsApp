@@ -132,6 +132,7 @@ function checkViralKeywords(hour, value) {
       var isSheetEmpty = adgroupIDs.length == 0;
 
       var isInSheet = false;
+
       if (!isSheetEmpty) {
         var isMatchAdgroupID = _isArrayContain(adgroupIDs, adgroupID);
         var isMatchKeywordID = _isArrayContain(keywordIDs, keywordID);
@@ -140,8 +141,11 @@ function checkViralKeywords(hour, value) {
       }
       // 5. if the sheet is empty or not in the spreadsheet list, append in the spreadsheet
       if (isSheetEmpty || !isInSheet) {
+        // turn an row object into a row array in selected position so we can append to the sheet
         var rowArr = _mappingObjectArr(row);
         sheet.appendRow(rowArr);
+
+        //
         const oldBid = _getCurrentBidOfKeyword(selectedKeyword);
         const newBid = _decreaseCPVKeywordByPercent(selectedKeyword, 30);
         Logger.log('Viral keywords: ' + row['ad_group_criterion.keyword.text']);
@@ -225,7 +229,7 @@ function getViralKeywordsToNormal() {
   Logger.log('End loop!');
 
   // after restore all the viral display keyword to normal, we delete all the data inside the sheet except the 1st row
-  // sheet.deleteRows(2, lastRow - 1);
+  sheet.deleteRows(2, lastRow - 1);
 }
 
 function _mappingObjectArr(object) {
