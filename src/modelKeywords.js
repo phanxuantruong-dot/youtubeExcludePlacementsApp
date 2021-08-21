@@ -157,6 +157,9 @@ function checkViralKeywords(hour, value) {
         );
       }
     }
+    Logger.log(
+      'You can view the viral keyword list here: https://docs.google.com/spreadsheets/d/1CESmvINrFTBAoYo909rJOG3Ee9clgk97QD7vghchN3E/edit#gid=0'
+    );
   } else {
     Logger.log("There's no viral keyword!");
   }
