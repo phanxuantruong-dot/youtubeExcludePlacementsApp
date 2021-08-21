@@ -29,21 +29,21 @@ Case 4: cost > 55, conv < 2
 
 */
 var dateRangePlacement = 'LAST_30_DAYS';
-var dateRangeYTB = 'LAST_30_DAYS';
+var dateRangeKwd = 'LAST_30_DAYS';
 
 function main() {
-  excludeYoutubePlacementsAtCampaignLevel(_case1);
-  excludeYoutubePlacementsAtCampaignLevel(_case2);
-  excludeYoutubePlacementsAtCampaignLevel(_case3);
-  excludeYoutubePlacementsAtCampaignLevel(_case4);
-  checkYoutubeExclusionList();
+  // excludeYoutubePlacementsAtCampaignLevel(_case1);
+  // excludeYoutubePlacementsAtCampaignLevel(_case2);
+  // excludeYoutubePlacementsAtCampaignLevel(_case3);
+  // excludeYoutubePlacementsAtCampaignLevel(_case4);
+  // checkYoutubeExclusionList();
 
-  //pauseDisplayKeywords(_case1Kwds);
-  //pauseDisplayKeywords(_case2Kwds);
-  //pauseDisplayKeywords(_case3Kwds);
-  //pauseDisplayKeywords(_case4Kwds);
-  //checkViralKeywords(6, 10);
-  //getViralKeywordsToNormal();
+  // pauseDisplayKeywords(_case1Kwds);
+  // pauseDisplayKeywords(_case2Kwds);
+  // pauseDisplayKeywords(_case3Kwds);
+  // pauseDisplayKeywords(_case4Kwds);
+  checkViralKeywords(6, 10);
+  // getViralKeywordsToNormal();
 }
 
-export { dateRangePlacement, dateRangeYTB };
+export { dateRangePlacement, dateRangeKwd };

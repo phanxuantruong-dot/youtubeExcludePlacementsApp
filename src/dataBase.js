@@ -1,6 +1,6 @@
 import 'node_modules';
 import { _exportReportToSpreadSheetAndGetRows, _getRows } from './helpers.js';
-import { dateRangePlacement, dateRangeYTB } from './controller.js';
+import { dateRangePlacement, dateRangeKwd } from './controller.js';
 
 var _spreadSheetID = '1CESmvINrFTBAoYo909rJOG3Ee9clgk97QD7vghchN3E';
 // placements dataBase
@@ -80,7 +80,7 @@ var _youtubeGAQLKwds =
   ' AND ad_group_criterion.status = ENABLED' +
   ' AND segments.ad_network_type = YOUTUBE_WATCH' +
   ' AND segments.date DURING ' +
-  dateRangeYTB;
+  dateRangeKwd;
 
 /* 
 
