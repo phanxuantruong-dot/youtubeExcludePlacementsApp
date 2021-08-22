@@ -8,3 +8,13 @@ function _valueBasedOnHour(hour, value) {
 }
 
 console.log(_valueBasedOnHour(6, 10));
+
+function _normalValToMicros(val) {
+  return (val * 1000000).toString();
+}
+
+console.log(_normalValToMicros(_valueBasedOnHour(6, 10)));
+var string =
+  ' AND metrics.cost_micros >= ' + _normalValToMicros(_valueBasedOnHour(6, 10));
+console.log(typeof string);
+console.log(string);

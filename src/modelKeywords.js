@@ -137,9 +137,11 @@ function checkViralKeywords(hour, value) {
   // prepare database
   var viralKeywordsGAQL =
     _youtubeGAQLKwds +
-    ' AND metrics.cost_micros >= ' +
+    ' AND metrics.cost_micros > ' +
     _normalValToMicros(_valueBasedOnHour(hour, value)) +
-    ' AND metrics.all_conversions < 1';
+    ' AND metrics.all_conversions < 1' +
+    ' AND ad_group_criterion.effective_cpv_bid_micros > ' +
+    _normalValToMicros(0.01);
 
   var rows = _getRows(viralKeywordsGAQL);
   // 1. we check each rows we got to every row inside the sheet
@@ -181,7 +183,7 @@ function checkViralKeywords(hour, value) {
 
         //
         const oldBid = _getCurrentBidOfKeyword(selectedKeyword);
-        const newBid = _decreaseCPVKeywordByPercent(selectedKeyword, 30);
+        const newBid = _setCPVKeyword(selectedKeyword, 0.02);
         Logger.log('Viral keywords: ' + row['ad_group_criterion.keyword.text']);
         Logger.log('Old bid: ' + oldBid);
         Logger.log('New bid: ' + newBid);
@@ -252,8 +254,16 @@ function getViralKeywordsToNormal() {
     var maxCPVMicrosValue = +_getCellValue(sheet, rowIndex, colMaxCPV);
     var normalBid = maxCPVMicrosValue / 1000000;
 
-    // get the current bid, also the reduced 30% bid from normal
+    // get the current bid, also the reduced 70% bid from normal
     var reducedBid = selectedKeyword.bidding().getCpv();
+
+    // check if the keyword was paused by the script, if paused, we dont get it back to normal bid
+    if (reducedBid === 0.01) {
+      Logger.log(
+        'Viral Keyword: ' + selectedKeyword.getText() + ': has paused'
+      );
+      continue;
+    }
 
     Logger.log('Before set new CPV[' + i + ']');
 
